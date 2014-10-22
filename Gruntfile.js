@@ -120,10 +120,8 @@ module.exports = function(grunt) {
             name: 'vendor/requirejs/require',
             mainConfigFile: "public/js/require.config.js",
             include: ['js/main'],
-            insertRequire: ['main'],
             out: 'public/main.min.js',
-            optimize: 'none',
-            wrap: true
+            optimize: 'none'
         }
       }
     },

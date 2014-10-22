@@ -1,5 +1,24 @@
 @import "../vendor/reveal-js/css/reveal.css";
 @import "../vendor/reveal-js/css/theme/moon.css";
-.title {
-  background-color: white;
+@import "mixins";
+
+
+@map-color: rgb(166, 122, 122);
+
+.map {
+  background-color: @map-color;
+  border-top-color: rgb(147, 161, 161);
+  border-top-style: solid;
+  border-top-width: 4px;
+  width: 900px;
+  height: 400px;
+}
+
+.hide {
+  opacity: 0;
+}
+
+.footstep {
+  position: relative;
+  .transition("opacity", 2s);
 }

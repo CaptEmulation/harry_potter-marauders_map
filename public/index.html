@@ -19,6 +19,16 @@
       </section>
 
       <section>
+        <h1>The Maurader's Map</h1>
+        <p>
+          This is a demo of footsteps
+        </p>
+        <div class="map">
+          
+        </div>
+      </section>
+
+      <section>
 				<h2>Heads Up</h2>
 				<p>
 					reveal.js is a framework for easily creating beautiful presentations using HTML. You'll need a browser with
@@ -28,6 +38,17 @@
 			</section>
     </div>
   </div>
+
   <script src="vendor/reveal-js/lib/js/head.min.js"></script>
   <script src="main.min.js"></script>
+  <script>
+    require(['js/require.config'], function () {
+      require(['main']);
+    });
+  </script>
+  
+  <script type='text/template' id='tmpl-_footsteps'>
+    !! 
+  </script>
+  
 </body>
