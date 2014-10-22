@@ -26,3 +26,9 @@ node_modules
 
 # Users Environment Variables
 .lock-wscript
+
+# stuff we don't want in repo
+public/staging
+public/*.min.*
+public/vendor
+bower_components
