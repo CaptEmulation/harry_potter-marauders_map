@@ -4,10 +4,13 @@ define(function (require, exports) {
   var Backbone = require('backbone');
   var _ = require('underscore');
   var $ = require('jquery');
+  var sprintf = require('sprintf').sprintf;
+  var paths = require('js/paths');
   
   var FootstepsModel = Backbone.Model.extend({
     defaults: {
-      direction: 'right',
+      direction: null,
+      rotation: 0,
       position: {
         x: 0,
         y: 0
@@ -22,19 +25,15 @@ define(function (require, exports) {
     initialize: function (options) {
       options = options || {};
       this.model = options.model || new FootstepsModel();
-      this.model.on('change:position', function () {
-        var pos = this.model.get('position');
-        this.$el.css('right', pos.x + 'px');
-        this.$el.css('top', pos.y + 'px');
-      }, this);
-      this.model.on('change:direction', function () {
-        var direction = this.model.get('direction');
-        this.$el.removeClass('heading-up');
-        this.$el.removeClass('heading-down');
-        this.$el.removeClass('heading-right');
-        this.$el.removeClass('heading-left');
-        this.$el.addClass('heading-' + direction);
-      }, this);
+      this.model.on('change:position change:rotation', this.reposition, this);
+      this.reposition();
+    },
+    
+    reposition: function () {
+      var rot = this.model.get('rotation');
+      var pos = this.model.get('position');
+      var translate = sprintf('translate(%dpx ,%dpx) rotate(%ddeg)', pos.x, pos.y, rot);
+      this.$el.css('transform', translate);
     },
     
     render: function () {
@@ -51,9 +50,9 @@ define(function (require, exports) {
           setTimeout(function () {
             left.removeClass('show');
             left.addClass('hide');
-            setTimeout(function () {
+            left.one('webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend', function() {
               this.model.set('hidden', true);
-            }.bind(this), 2000);
+            }.bind(this));
           }.bind(this), 500);
         }.bind(this), 500);
       }.bind(this), 500);
@@ -63,7 +62,6 @@ define(function (require, exports) {
   
   var FootstepTrailModel = Backbone.Model.extend({
     defaults: {
-      direction: 'up',
       numberOfFootsteps: 25,
       speed: 1.0,
       path: function () {
@@ -72,7 +70,7 @@ define(function (require, exports) {
             x: 0,
             y: 0
           },
-          direction: 'up'
+          rotation: 0
         };
       },
       stepCount: 0,
@@ -84,25 +82,7 @@ define(function (require, exports) {
     initialize: function (options) {
       options = options || {};
       this.model = options.model || new FootstepTrailModel({
-        path: (function () {
-          var direction = 'up';
-          
-          return function (step, previous) {
-            if (step % 4 === 3) {
-              direction = direction === 'up' ? 'down':'up';
-            }
-            var previousPos = previous && previous.position;
-            var yDelta = previousPos ? (direction === 'up' ? previousPos.y - 80 : previousPos.y + 80) : 100;
-            
-            return {
-              position: {
-                x: 50,
-                y: yDelta
-              },
-              direction: direction 
-            };
-          };
-        }())
+        path: paths.improvedVertBackAndForth()
       });
       setInterval(this.onNextFootstep.bind(this), 1000);
     },
@@ -112,8 +92,10 @@ define(function (require, exports) {
       var footsteps = new Footsteps({model: nextFootstepModel});
       this.model.set('stepCount', this.model.get('stepCount') + 1);
       var nextFootstepPosition = this.model.get('path')(this.model.get('stepCount'), this.model.get('previousPos'));
-      nextFootstepModel.set('position', nextFootstepPosition.position);
-      nextFootstepModel.set('direction', nextFootstepPosition.direction);
+      nextFootstepModel.set({
+        position: nextFootstepPosition.position,
+        rotation: nextFootstepPosition.rotation
+      });
       nextFootstepModel.once('change:hidden', function () {
         footsteps.$el.remove();
       });

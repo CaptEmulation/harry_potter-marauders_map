@@ -3,7 +3,8 @@ require.config({
     'reveal': 'vendor/reveal-js/js/reveal',
     'backbone': 'vendor/backbone/backbone',
     'jquery': 'vendor/jquery/dist/jquery',
-    'underscore': 'vendor/underscore/underscore'
+    'underscore': 'vendor/underscore/underscore',
+    'sprintf': 'vendor/sprintf/src/sprintf'
   },
   shim: {
     'reveal': {
