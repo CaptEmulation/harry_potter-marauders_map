@@ -7,7 +7,7 @@ define('main', function (require) {
   var $ = require('jquery');
   var Footsteps = require('js/footsteps').FootstepTrail;
   
-  $('.map').append(new Footsteps().render().$el);
+  $('.map').append(new Footsteps().start().render().$el);
   
   
 });

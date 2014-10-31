@@ -5,6 +5,11 @@
 
 @map-color: rgb(166, 122, 122);
 
+@font-face {
+  font-family: 'Allegheny';
+  src: url('/font/allegheny.ttf');
+}
+
 .map {
   background-color: @map-color;
   border-top-color: rgb(147, 161, 161);
@@ -13,6 +18,14 @@
   width: 900px;
   height: 400px;
   position: relative;
+  
+  .name-tag {
+    top: -20px;
+    left: 110px;
+    font-family: 'Allegheny';
+    .transition(transform, 1s);  
+    position: absolute;
+  }
 }
 
 .hide {
@@ -40,22 +53,6 @@
   height: 69px;
 }
 
-.heading-up {
-  transform: rotate(0turn);
-}
-
-.heading-right {
-  transform: rotate(0.25turn);
-}
-
-.heading-down {
-  transform: rotate(0.5turn);
-}
-
-.heading-left {
-  transform: rotate(0.75turn);
-}
-
 .footstep {
   position: absolute;
 
@@ -68,7 +65,7 @@
   .right {
     .right-foot-img;
     .vertical-foot;
-    margin-top: 35px;
+    margin-top: 60px;
     float: left;
   }
 }
