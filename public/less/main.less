@@ -10,7 +10,12 @@
   src: url('/font/allegheny.ttf');
 }
 
-.map {
+span.fancy {
+  color: black;
+  font-family: 'Allegheny';  
+}
+
+div.map {
   background-color: @map-color;
   border-top-color: rgb(147, 161, 161);
   border-top-style: solid;
@@ -20,11 +25,14 @@
   position: relative;
   
   .name-tag {
+    background-image: url('/img/nametag_1.png');
+    background-size: 11em;
+    background-repeat: no-repeat;
     top: -20px;
     left: 110px;
-    font-family: 'Allegheny';
     .transition(transform, 1s);  
     position: absolute;
+    padding: 50px 130px 50px 130px;
   }
 }
 
