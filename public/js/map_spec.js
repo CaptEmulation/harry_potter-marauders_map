@@ -235,8 +235,8 @@ define(function (require) {
             
             it('translates the top container elements', function () {
               view.open();
-              expect(stack.slice(-1)[0].views['right'].pointer.$el.css('transform')).to.include('translate(200px, 0px)');
-              expect(stack.slice(-1)[0].views['left'].pointer.$el.css('transform')).to.include('translate(-200px, 0px)');
+              expect(stack[0].views['right'].pointer.$el.css('transform')).to.include('translate(200px, 0px)');
+              expect(stack[0].views['left'].pointer.$el.css('transform')).to.include('translate(-200px, 0px)');
             });
           });
           

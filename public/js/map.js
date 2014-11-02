@@ -25,8 +25,16 @@ define('map', function (require, exports) {
       }
     });
   
+  var MapContainerModel = ES5Class.$define('MapContainerModel')
+    .$implement(core.Model)
+    .$include({
+      defaults: {
+        next: null
+      }
+    });
+  
   var MapContainer = ES5Class.$define('MapContainer')
-    .$implement(Backbone.View)
+    .$implement(core.View)
     .$implement(mixins.Options)
     .$include(function () {
     
@@ -39,17 +47,18 @@ define('map', function (require, exports) {
     }
     
     return {
-      construct: Backbone.View,
       className: 'map-container',
-      initialize: function (options) {
+      initialize: function ($super, options) {
         options = this.options(options);
-        
+        this.model = options.default('model') || new MapContainerModel();
         // The shortcut implementation of defineDirection for all alloweds
         var views = this.views = {};
         var allowed = options.default('allowed') || [];
         allowed.forEach(function (allowed) {
           views[allowed] = viewDataFactory(options, allowed);
         });
+        
+        $super();
       },
       allowed: function () {
         return Object.keys(this.views);
@@ -82,7 +91,16 @@ define('map', function (require, exports) {
       render: function () {
         var view = this;
         Object.keys(this.views).forEach(function (dir) {
-          view.$el.append(view.views[dir].pointer.render().$el);
+          var viewDir = view.views[dir].pointer.render();
+          var iterateDir = viewDir;
+          var nextContDir = view.model.get('next');
+          while (nextContDir) {
+            var nextViewDir = nextContDir.views[dir].pointer;
+            iterateDir.$el.append(nextViewDir.render().$el);
+            nextContDir = nextContDir.model.get('next');
+            iterateDir = nextViewDir;
+          }
+          view.$el.append(viewDir.$el);
         });
         return this;
       }
@@ -151,12 +169,17 @@ define('map', function (require, exports) {
           var view = this;
           
           // Get Container class for orientation
-          var Container = MapView.containerForOrientation(orientation);
-          
-          // Create container and add to stack
-          this._containerStack.push(Container.$create({
+          var container = MapView.containerForOrientation(orientation).$create({
             handler: this._build_mapSection(orientation)
-          }));
+          });
+          
+          // Link containers
+          if (this._containerStack.length) {
+            container.model.set('next', this._containerStack.slice(-1)[0]);
+          }
+            
+          // Create container and add to stack
+          this._containerStack.push(container);
           
           // Extend DSL
           dsl.addToTopContainer = function (options) {
@@ -215,7 +238,7 @@ define('map', function (require, exports) {
                 model: model
               });
               return section;
-            }
+            };
           };
           return {
             right: handler('right'),
@@ -234,10 +257,8 @@ define('map', function (require, exports) {
           return dsl;
         },
         render: function () {
-          var view = this;
-          this.containerStack().forEach(function (container) {
-            view.$el.append(container.render().$el);
-          });
+          var topContainer = this.containerStack().pop();
+          this.$el.append(topContainer.render().$el);
           return this;
         },
         
@@ -250,8 +271,10 @@ define('map', function (require, exports) {
           }
           if (this._isOpening && this._openIndex > this._containerStack.length - 2) {
             this._isOpening = false;
-          } else if (!this._isOpening && this._openIndex <= 0) {
+            this._openIndex--;
+          } else if (!this._isOpening && this._openIndex < 0) {
             this._isOpening = true;
+            this._openIndex++;
           }
         },
         
@@ -261,10 +284,8 @@ define('map', function (require, exports) {
          */
         open: function () {
           console.log('-- BEGIN open');
-          for (var i = 0; i <= this.openIndex(); i++) {
-            var topContainer = this._containerStack[this._containerStack.length - i - 1];
-            topContainer.open();
-          }
+          var topContainer = this._containerStack[this._openIndex];
+          topContainer.open();
           this._openIndex++;
           console.log('-- END open');
           return this;
@@ -274,10 +295,8 @@ define('map', function (require, exports) {
          */
         close: function () {
           console.log('-- BEGIN close');
-          for (var i = this.openIndex(); i >= 0; i--) {
-            var topContainer = this._containerStack[this._containerStack.length - i - 1];
-            topContainer.close();
-          }
+          var topContainer = this._containerStack[this._openIndex];
+          topContainer.close();
           this._openIndex--;
           console.log('-- END close');
           return this;

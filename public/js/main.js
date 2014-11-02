@@ -14,14 +14,14 @@ define('main', function (require, exports) {
       .horizontal({
         right: {
           background: {
-            url: 'url("img/h768_mm_front_right_3.png")'
+            url: 'url("img/h768_mm_front_right_1.png")'
           },
           width: 200,
           height: 768
         },
         left: {
           background: {
-            url: 'url("img/h768_mm_front_left_3.png")'
+            url: 'url("img/h768_mm_front_left_1.png")'
           },
           width: 200,
           height: 768
@@ -46,14 +46,14 @@ define('main', function (require, exports) {
       .horizontal({
         right: {
           background: {
-            url: 'url("img/h768_mm_front_right_1.png")'
+            url: 'url("img/h768_mm_front_right_3.png")'
           },
           width: 200,
           height: 768
         },
         left: {
           background: {
-            url: 'url("img/h768_mm_front_left_1.png")'
+            url: 'url("img/h768_mm_front_left_3.png")'
           },
           width: 200,
           height: 768
