@@ -1,10 +1,8 @@
 define(function (require, exports) {
   'use strict';
   
-  var mixins = exports;
   var ES5Class = require('ES5Class');
   var sprintf = require('sprintf').sprintf;
-  var _ = require('underscore');
 
   exports.SafelyCall = ES5Class.$define('SafelyCall', {
     safelyCall: function (obj, method, args) {
@@ -77,6 +75,55 @@ define(function (require, exports) {
       }, {}));
     }
   });
+  
+  exports.ZoomableView = ES5Class.$define('ZoomableView', {
+    construct: function (view, target) {
+      this._scrollView = view;
+      this._targetView = target;
+    },
+
+    subscribe: function ($super) {
+      this._scrollView.$el.on('mousewheel', this.onMouseWheel.bind(this));
+      $super();
+    },
+
+    unsubscribe: function ($super) {
+      this.$el.off('mousewheel');
+      $super();
+    },
+
+    reset: function ($super) {
+      $super();
+    },
+      
+    onMouseWheel: function (event) {
+      var delta = (event.originalEvent.wheelDelta / 2048);
+      var scale = this._targetView.model.get('scale');
+      scale += delta;
+      this._targetView.model.set('scale', scale);
+      
+      if (scale > 1) {
+        
+      }
+      var width = this._targetView.$el.width() *scale;
+      var zoomerWidth = this._scrollView.$el.width();
+      var horMargin = zoomerWidth - width / 2;
+      // if (horMargin > 0) {
+      //   this._targetView.$el.css({
+      //     'margin-left': horMargin + 'px',
+      //     'margin-right': horMargin + 'px'
+      //   });
+      //   return false;
+      // } else {
+      //   this._targetView.$el.css({
+      //     'margin-left': '0px',
+      //     'margin-right': '0px',
+      //     'left': horMargin
+      //   });
+      // }
+
+    }    
+  });
 
   exports.TransformsCss = ES5Class.$define('TransformCss', {
     construct: function (view) {
@@ -112,70 +159,35 @@ define(function (require, exports) {
   
   exports.Options = ES5Class.$define('Options', function () {
     var OptionsDsl = ES5Class.$define('OptionsDsl', function () {
-      var safelyCall = mixins.SafelyCall.$create();
-      
-      var isDefined = function (options) {
-        return !!options;
-      };
-      
-      var expect = function (options, key) {
-        if (!isDefined(options)) {
-          throw new Error(sprintf('Undefined options can not contain a %s key', key));
-        }
-        if (!this.options.hasOwnProperty(key)) {
-          throw new Error(sprintf('Expect options: %s to have argument: %s', JSON.stringify(this.options), key));
-        }
-        return this.options[key];
-      };
-      
-      var defaultVal = function (options, key, value) {
-        if (!isDefined(options) || !options.hasOwnProperty(key)) {
-          return value;
-        }
-        return options[key];
-      };
-      
       return {
-        construct: function () {
-          this.__opts = {
-            __opts: this
-          };
-          this.__defaults = {
-            
-          }
+        construct: function (options) {
+          this.isDefined = !!options;
+          this.options = options;
         },
         expect: function (key) {
-          this.__opts[key] = function () {
-            return expect(this._rawOpts, key);
-          }.bind(this)
-          return this;
+          if (!this.isDefined) {
+            throw new Error(sprintf('Undefined options can not contain a %s key', key));
+          }
+          if (!this.options.hasOwnProperty(key)) {
+            throw new Error(sprintf('Expect options: %s to have argument: %s', JSON.stringify(this.options), key));
+          }
+          return this.options[key];
         },
         default: function (key, value) {
-          this.__defaults[key] = value;
-          return this;
-        },
-        options: function (options) {
-          // Don't double convert
-          if (options.__opts === this) {
-            return options;
+          if (!this.isDefined || !this.options.hasOwnProperty(key)) {
+            return value;
           }
-          
-          this._rawOpts = options;
-          var val, exposedOptions = this._expOpts;
-          
-          Object.keys(options).forEach(function (key) {
-            // Can throw exception
-            options[key] = safelyCall(this.__opts, key, [key]);
-          });
-          
-          return _(options).defaults(this.__defaults);
+          return this.options[key];
         }
       };
     });
     
     return {
-      options: function () {
-        return OptionsDsl.$create();
+      options: function (options) {
+        if (options && options.$className && options.$className === OptionsDsl.$className) {
+          return options;
+        }
+        return OptionsDsl.$create(options);
       }
     }
   })

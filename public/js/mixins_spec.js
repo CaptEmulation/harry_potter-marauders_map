@@ -39,36 +39,32 @@ define(function (require) {
       var o;
       
       beforeEach(function () {
-        o = Options.$create().options();
+        o = Options.$create();
       });
       
       describe('#expect', function () {
         it('will pass through a valid value', function () {
-          o.expect('foo')
+          
           expect(o.options({
             foo: 'bar'
-          })).to.equal('bar');
+          }).expect('foo')).to.equal('bar');
         });
         
         it('will throw an exception on an invalid value', function () {
           var dsl = o.options({});
-          expect(function () {
-            o.foo;
-          }).to.throw('Expect');
+          expect(dsl.expect.bind(dsl, 'foo')).to.throw('Expect');
         });
         
         it('does fine with undefined options', function () {
           var dsl = o.options(undefined);
-          expect(function () {
-            o.foo;
-          }).to.throw('Undefined');
+          expect(dsl.expect.bind(dsl, 'foo')).to.throw('Undefined');
         });
         
         it('double wrap will return self', function () {
           var dsl = o.options(Options.$create().options({
             'foo': 'bar'
           }));
-          expect(dsl.foo).to.equal('bar');
+          expect(dsl.expect('foo')).to.equal('bar');
         });
         
       });

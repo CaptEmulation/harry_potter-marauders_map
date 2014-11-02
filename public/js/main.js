@@ -7,6 +7,8 @@ define('main', function (require, exports) {
     var $ = require('jquery');
     var Footsteps = require('footsteps').FootstepTrail;
     var map = require('map');
+    var core = require('core');
+    var mixins = require('mixins');
     var MapView = map.MapView;
     
     var mapView = MapView.$create();
@@ -59,9 +61,18 @@ define('main', function (require, exports) {
           height: 768
         }
       });
+      
+    var MapPage = core.View.$define('MapPage', {
+      initialize: function ($super) {
+        this.use(mixins.ZoomableView.$create(this, mapView));
+        $super();
+      },
+      
+    });
     
-    
-    $('.marauder-map').append(mapView.render().$el);
+    MapPage.$create({
+      el: '.marauder-map'
+    }).$el.append(mapView.render().$el);
     
     
     // setTimeout(function () {

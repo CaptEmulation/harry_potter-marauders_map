@@ -131,6 +131,7 @@ define('map', function (require, exports) {
         scale: 1
       }
     });
+
   
   var MapView = core.View
     .$define('MapView', null, {
@@ -161,7 +162,7 @@ define('map', function (require, exports) {
         
         subscribe: function ($super) {
           this.$el.click(this.click.bind(this));
-          //this.$el.on('mousewheel', this.onMouseWheel.bind(this));
+          
           $super();
         },
         
@@ -291,25 +292,24 @@ define('map', function (require, exports) {
         },
         
         onMouseWheel: function (event) {
+          var delta = (event.originalEvent.wheelDelta / 1024);
           var scale = this.model.get('scale');
-          scale += (event.originalEvent.wheelDelta / 1024);
-          this.model.set('scale', scale);
+          this._width = this._width || this.$el.width();
           
-          var offset = this.$el.offset();
-          var offsetTop = offset.top;
-          var offsetLeft = offset.left;
-          var width = this.$el.width();
-          var height = this.$el.height();
-          var midX = offsetLeft + (width / 2);
-          var midY = offsetTop + (height/ 2);
-          var position = this.model.get('position');
-          var deltaX = event.pageX - midX;
-          var deltaY = event.pageY - midY;
-          var newPos = {
-            x: position.x - deltaX,
-            y: position.y - deltaY
-          };
-          this.model.set('position', newPos);
+          scale += delta;
+          this.model.set('scale', scale);
+
+        
+          // var offset = this.$el.offset();
+          // var offsetTop = offset.top;
+          // var offsetLeft = offset.left;
+          // var midX = offsetLeft + (width / 2);
+          // var position = this.model.get('position');
+          // var deltaX = event.pageX - midX;
+          // var newPos = {
+          //   x: position.x - deltaX
+          // };
+          //this.model.set('position', newPos);
           return false;
         },
         
