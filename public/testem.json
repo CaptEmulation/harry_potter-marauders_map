@@ -1,0 +1,12 @@
+{
+  "test_page": "test.mustache",
+  "src_files": [
+    "js/**/*.js"
+  ],
+  "serve_files": [
+    "js/**/*.js"
+  ],
+  "src_files_ignore": [
+    "js/require.config.js"
+  ]
+}

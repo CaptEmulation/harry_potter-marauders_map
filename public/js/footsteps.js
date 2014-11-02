@@ -1,11 +1,12 @@
-define(function (require, exports) {
+define('footsteps', function (require, exports) {
   'use strict';
   
   var Backbone = require('backbone');
   var _ = require('underscore');
   var $ = require('jquery');
   var sprintf = require('sprintf').sprintf;
-  var paths = require('js/paths');
+  var paths = require('paths');
+  var template = require('template');
   
   var NameTagModel = Backbone.Model.extend({
     defaults: {
@@ -13,24 +14,37 @@ define(function (require, exports) {
       position: {
         x: 0,
         y: 0
-      }
+      },
+      hidden: false
     }
   });
   
   var NameTag = Backbone.View.extend({
-    template: _.template($('#tmpl-_name-tag').html()),
+    template: template('#tmpl-_name-tag'),
     className: 'name-tag',
     initialize: function (options) {
       options = options || {};
       this.model = options.model || new NameTagModel();
       this.model.on('change:position', this.reposition, this);
+      this.model.on('change:hidden', this.onHiddenChanged, this);
     },
     reposition: function () {
       var pos = this.model.get('position');
       var translate = sprintf('translate(%dpx ,%dpx)', pos.x, pos.y);
       this.$el.css('transform', translate);
     },
+    onHiddenChanged: function () {
+      var hidden = this.model.get('hidden');
+      if (hidden) {
+        this.$el.addClass('hide');
+      } else {
+        this.$el.removeClass('hide');
+      }
+    },
     render: function () {
+      if (this.model.get('hidden')) {
+        this.$el.addClass('hide');
+      }
       this.$el.html(this.template(this.model.toJSON()));
       return this;
     }
@@ -50,7 +64,7 @@ define(function (require, exports) {
   });
   
   var Footsteps = Backbone.View.extend({
-    template: _.template($('#tmpl-_footsteps').html()),
+    template: template('#tmpl-_footsteps'),
     className: 'footstep',
     initialize: function (options) {
       options = options || {};
@@ -125,7 +139,11 @@ define(function (require, exports) {
       this.model = options.model || new FootstepTrailModel({
         path: paths.improvedVertBackAndForth()
       });
-      this.nameTag = new NameTag();
+      this.nameTag = new NameTag({
+        model: new NameTagModel({
+          hidden: true
+        })
+      });
     },
     
     start: function () {
@@ -136,31 +154,49 @@ define(function (require, exports) {
     
     stop: function () {
       clearInterval(this._intervalId);
+      this._intervalId = null;
       return this;
     },
     
+    isStopped: function () {
+      return !this._intervalId;
+    },
+    
     onNextFootstep: function () {
-      var nextFootstepModel = new FootstepsModel({
-        scale: this.model.get('scale')
-      });
-      var footsteps = new Footsteps({model: nextFootstepModel});
-      this.model.set('stepCount', this.model.get('stepCount') + 1);
       var nextFootstepPosition = this.model.get('path')(this.model.get('stepCount'), this.model.get('previousPos'));
-      var offset = this.model.get('offset');
-      var pos = {
-        x: nextFootstepPosition.x + offset.x,
-        y: nextFootstepPosition.y + offset.y
-      };
-      this.nameTag.model.set('position', pos);
-      nextFootstepModel.set({
-        position: pos,
-        rotation: nextFootstepPosition.rotation
-      });
-      nextFootstepModel.once('change:hidden', function () {
-        footsteps.dispose();
-      });
-      this.$el.append(footsteps.render().$el);  
-      this.model.set('previousPos', nextFootstepPosition);
+      
+      this.model.set('stepCount', this.model.get('stepCount') + 1);
+      if (this.model.get('stepCount') === 2) {
+        this.nameTag.model.set('hidden', false);
+      }
+      
+      if (nextFootstepPosition) {
+        var nextFootstepModel = new FootstepsModel({
+          scale: this.model.get('scale')
+        });
+        var footsteps = new Footsteps({model: nextFootstepModel});
+        var offset = this.model.get('offset');
+        var pos = {
+          x: nextFootstepPosition.x + offset.x,
+          y: nextFootstepPosition.y + offset.y
+        };
+        this.nameTag.model.set('position', pos);
+        nextFootstepModel.set({
+          position: pos,
+          rotation: nextFootstepPosition.rotation
+        });
+        nextFootstepModel.once('change:hidden', function () {
+          footsteps.dispose();
+          if (this.isStopped()) {
+            this.nameTag.model.set('hidden', true);
+          }
+        }, this);
+        this.$el.append(footsteps.render().$el);  
+        this.model.set('previousPos', nextFootstepPosition);
+      } else {
+        this.stop();
+      }
+      
     },
 
     render: function () {

@@ -1,4 +1,4 @@
-define(function (require, exports) {
+define('paths', function (require, exports) {
   'use strict';
   
   exports.improvedVertBackAndForth = function () {
@@ -8,7 +8,8 @@ define(function (require, exports) {
       { x: 0, y: 180, rotation: 180 },
       { x: 20, y: 270, rotation: 135 },
       { x: 110, y: 300, rotation: 90 },
-      { x: 200, y: 300, rotation: 90 }
+      { x: 200, y: 300, rotation: 90 },
+      null
     ];
     
     var index = 0;

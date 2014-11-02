@@ -23,7 +23,7 @@
         <p>
           This is a demo of footsteps
         </p>
-        <div class="map">    
+        <div class="marauder">    
         </div>
       </section>
 
@@ -42,7 +42,10 @@
   <script src="main.min.js"></script>
   <script>
     require(['js/require.config'], function () {
-      require(['main']);
+      require(['main', 'initReveal'], function (main, reveal) {
+        reveal.init();
+        main.init();
+      });
     });
   </script>
   
@@ -56,4 +59,5 @@
       <%=name%>
     </span>
   </script>
+  
 </body>

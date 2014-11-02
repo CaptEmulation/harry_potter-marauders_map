@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="vendor/mocha/mocha.css">
+  <title>Test</title>
+
+  <script src="main.min.js"></script>
+  <!-- {{#serve_files}}
+  <script src="{{src}}"></script>
+  {{/serve_files}} -->
+  <script>
+    'use strict';
+    require(['js/require.config'], function () {
+      require(['mocha', '/testem.js', 'es5-shim'], function () {
+        var files = [];
+        {{#serve_files}}
+        files.push("{{src}}".slice(3,-3));
+        {{/serve_files}}
+      
+        mocha.setup('bdd');
+      
+        require(files, function () {
+          mocha.run();
+        });
+      });      
+    });
+  </script>
+</head>
+
+
+<body>
+  <div id="mocha"></div>
+</body>

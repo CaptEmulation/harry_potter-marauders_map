@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="css/main.min.css">
+  <title>Harry Potter</title>
+
+  <script src="main.min.js"></script>
+  <script>
+    require(['js/require.config'], function () {
+      require(['main'], function (main) {
+        main.init();
+      });
+    });
+  </script>
+
+  <script type='text/template' id='tmpl-_footsteps'>
+    <div class="left hide"></div>
+    <div class="right"></div>
+  </script>
+
+  <script type='text/template' id='tmpl-_name-tag'>
+    <span class="fancy">
+      <%=name%>
+    </span>
+  </script>
+</head>
+
+
+<body>
+  <h1>The Maurader's Map</h1>
+  <p>
+    This is a demo of footsteps
+  </p>
+  <div class="marauder-map">    
+  
+  </div>
+</body>

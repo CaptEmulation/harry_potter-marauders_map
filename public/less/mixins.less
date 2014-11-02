@@ -1,8 +1,15 @@
 /* Mixin */
-.transition (@prop: all, @time: 1s, @ease: linear) {
-    -webkit-transition: @prop @time @ease;
-    -moz-transition: @prop @time @ease;
-    -o-transition: @prop @time @ease;
-    -ms-transition: @prop @time @ease;
-    transition: @prop @time @ease;
+.transition (@prop) {
+  -webkit-transition: @prop;
+  -moz-transition: @prop;
+  -o-transition: @prop;
+  -ms-transition: @prop;
+  transition: @prop;
+}
+
+.multi-transition (...) {
+  -webkit-transition: ~`@{arguments}.join(",")`;
+  -moz-transition: ~`@{arguments}.join(",")`;
+  -ms-transition: ~`@{arguments}.join(",")`;
+  transition: ~`@{arguments}.join(",")`;
 }
