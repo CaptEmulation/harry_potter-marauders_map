@@ -98,9 +98,9 @@ define('footsteps', function (require, exports) {
             left.one('webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend', function() {
               this.model.set('hidden', true);
             }.bind(this));
-          }.bind(this), 500);
-        }.bind(this), 500);
-      }.bind(this), 500);
+          }.bind(this), exports.timeoutStep);
+        }.bind(this), exports.timeoutStep);
+      }.bind(this), exports.timeoutStep);
       return this;
     },
     
@@ -109,6 +109,14 @@ define('footsteps', function (require, exports) {
       this.model.off();
     }
   });
+  
+  
+  exports.timeoutStep = 500;  //debug mode
+  exports.stepSpeed = 1000;
+  exports.speed = function (scale) {
+    exports.timeoutStep /= scale;
+    exports.stepSpeed = 50;
+  };
   
   var FootstepTrailModel = Backbone.Model.extend({
     defaults: {
@@ -146,7 +154,7 @@ define('footsteps', function (require, exports) {
     
     start: function () {
       this.onNextFootstep();
-      this._intervalId = setInterval(this.onNextFootstep.bind(this), 1000);
+      this._intervalId = setInterval(this.onNextFootstep.bind(this), 100);
       return this;
     },
     
