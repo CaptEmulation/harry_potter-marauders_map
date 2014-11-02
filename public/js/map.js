@@ -168,7 +168,8 @@ define('map', function (require, exports) {
           this._openIndex = 0;
           this._isOpening = true;
           this.model = options.default('model') || MapModel.$create();
-          this.use(mixins.TransformsCss.$create(this));
+          this.use(mixins.TransformsCss.$create(this))
+            .use(mixins.SaveTransform.$create(this));
           $super(options);
         },
         

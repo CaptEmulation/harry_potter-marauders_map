@@ -129,6 +129,54 @@ define(function (require, exports) {
     }    
   });
 
+  exports.SaveTransform = ES5Class.$define('TransformCss', {
+    construct: function (view) {
+      this.view = view;
+    },
+    
+    subscribe: function ($super) {
+      this.view.model.on('change:rotation change:position change:scale', this.saveTransform, this);
+      $super();
+    },
+    
+    unsubscribe: function ($super) {
+      this.view.model.off('change:rotation change:position change:scale', this.saveTransform, this);
+      $super();
+    },
+    
+    reset: function ($super) {
+      this.loadTransform();
+      $super();
+    },
+      
+    loadTransform: function () {
+      var model = this.view.model;
+      
+      var data = JSON.parse(sessionStorage.getItem(this.view.$className + ':transform'));
+      if (data) {
+        var restore = {
+          position: data.position,
+          rotation: data.rotation,
+          scale: data.scale
+        }
+        this.view.model.set(restore);
+      }
+      
+    },
+      
+    saveTransform: function () {
+      var model = this.view.model;
+      var rot = model.get('rotation');
+      var pos = model.get('position');
+      var scale = model.get('scale');
+      sessionStorage.setItem(this.view.$className + ':transform', JSON.stringify({
+        position: pos,
+        rotation: rot,
+        scale: scale
+      }));
+    }
+  })
+  
   exports.TransformsCss = ES5Class.$define('TransformCss', {
     construct: function (view) {
       this.view = view;

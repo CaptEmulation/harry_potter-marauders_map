@@ -23,9 +23,26 @@ define('paths', function (require, exports) {
     };
   };
   
-  var walker = function (course) {
+  exports.course = function (steps) {
+    var index = 0;
+    
+    return function () {
+      var details = steps[index++];
+      if (index >= steps.length) {
+        index = 0;
+      }
+      
+      return details;
+    };
+    
+  }
+  
+  var walker = exports.walker = function (course) {
     var course = course || [];
     var dsl = {
+      footsteps: function () {
+        return exports.course(course);
+      },
       goTo: function (x, y, rotation) {
         course.push({
           x: x,
@@ -64,10 +81,6 @@ define('paths', function (require, exports) {
     var course = [];
     
     walker(course).goTo(172, 690, 150).walk(25, 120, 9).walk(200, -40, 18);
-    
-    course.forEach(function (c) {
-      console.log(JSON.stringify(c));
-    })
     
     var index = 0;
     
