@@ -1,13 +1,15 @@
 define(function (require, exports) {
   'use strict';
   
+  var mixins = exports;
   var ES5Class = require('ES5Class');
   var sprintf = require('sprintf').sprintf;
+  var _ = require('underscore');
 
   exports.SafelyCall = ES5Class.$define('SafelyCall', {
-    safelyCall: function ($super, method, args) {
-      if (typeof $super[method] === 'function') {
-        $super[method].apply(this, args);
+    safelyCall: function (obj, method, args) {
+      if (typeof obj[method] === 'function') {
+        obj[method].apply(obj, args);
       }
     } 
   });
@@ -110,35 +112,70 @@ define(function (require, exports) {
   
   exports.Options = ES5Class.$define('Options', function () {
     var OptionsDsl = ES5Class.$define('OptionsDsl', function () {
+      var safelyCall = mixins.SafelyCall.$create();
+      
+      var isDefined = function (options) {
+        return !!options;
+      };
+      
+      var expect = function (options, key) {
+        if (!isDefined(options)) {
+          throw new Error(sprintf('Undefined options can not contain a %s key', key));
+        }
+        if (!this.options.hasOwnProperty(key)) {
+          throw new Error(sprintf('Expect options: %s to have argument: %s', JSON.stringify(this.options), key));
+        }
+        return this.options[key];
+      };
+      
+      var defaultVal = function (options, key, value) {
+        if (!isDefined(options) || !options.hasOwnProperty(key)) {
+          return value;
+        }
+        return options[key];
+      };
+      
       return {
-        construct: function (options) {
-          this.isDefined = !!options;
-          this.options = options;
+        construct: function () {
+          this.__opts = {
+            __opts: this
+          };
+          this.__defaults = {
+            
+          }
         },
         expect: function (key) {
-          if (!this.isDefined) {
-            throw new Error(sprintf('Undefined options can not contain a %s key', key));
-          }
-          if (!this.options.hasOwnProperty(key)) {
-            throw new Error(sprintf('Expect options: %s to have argument: %s', JSON.stringify(this.options), key));
-          }
-          return this.options[key];
+          this.__opts[key] = function () {
+            return expect(this._rawOpts, key);
+          }.bind(this)
+          return this;
         },
         default: function (key, value) {
-          if (!this.isDefined || !this.options.hasOwnProperty(key)) {
-            return value;
+          this.__defaults[key] = value;
+          return this;
+        },
+        options: function (options) {
+          // Don't double convert
+          if (options.__opts === this) {
+            return options;
           }
-          return this.options[key];
+          
+          this._rawOpts = options;
+          var val, exposedOptions = this._expOpts;
+          
+          Object.keys(options).forEach(function (key) {
+            // Can throw exception
+            options[key] = safelyCall(this.__opts, key, [key]);
+          });
+          
+          return _(options).defaults(this.__defaults);
         }
       };
     });
     
     return {
-      options: function (options) {
-        if (options && options.$className && options.$className === OptionsDsl.$className) {
-          return options;
-        }
-        return OptionsDsl.$create(options);
+      options: function () {
+        return OptionsDsl.$create();
       }
     }
   })

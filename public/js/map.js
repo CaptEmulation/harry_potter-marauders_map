@@ -4,26 +4,13 @@ define('map', function (require, exports) {
   var Backbone = require('backbone');
   var _ = require('underscore');
   var $ = require('jquery');
+  require('jquery.elevatezoom');
   var sprintf = require('sprintf').sprintf;
   var paths = require('paths');
   var ES5Class = require('ES5Class');
   var mixins = require('mixins');
   var core = require('core');
   var template = require('template');
-  
-  var MapModel = ES5Class
-    .$define('MapModel')
-    .$implement(Backbone.Model)
-    .$include(function () {
-      return {
-        construct: function () {
-          Backbone.Model.apply(this, arguments);
-        },
-        defaults: {
-          
-        }
-      }
-    });
   
   var MapContainerModel = ES5Class.$define('MapContainerModel')
     .$implement(core.Model)
@@ -132,7 +119,20 @@ define('map', function (require, exports) {
     };
   })
   
-  var MapView = ES5Class
+  var MapModel = core.Model
+    .$define('MapModel')
+    .$include({
+      defaults: {
+        position: {
+          x: 0,
+          y: 0
+        },
+        rotation: 0,
+        scale: 1
+      }
+    });
+  
+  var MapView = core.View
     .$define('MapView', null, {
       containerForOrientation: function (orientation) {
         var Class;
@@ -144,17 +144,29 @@ define('map', function (require, exports) {
       Container: MapContainer,
       HorizontalContainer: HorizontalMapContainer
     })
-    .$implement(Backbone.View)
+    .$implement(mixins.Options)
     .$include(function () {
       
       return {
-        construct: Backbone.View,
         
-        initialize: function (options) {
+        initialize: function ($super, options) {
+          options = this.options(options);
           this._containerStack = [];
           this._openIndex = 0;
           this._isOpening = true;
+          this.model = options.default('model') || MapModel.$create();
+          this.use(mixins.TransformsCss.$create(this));
+          $super(options);
+        },
+        
+        subscribe: function ($super) {
           this.$el.click(this.click.bind(this));
+          //this.$el.on('mousewheel', this.onMouseWheel.bind(this));
+          $super();
+        },
+        
+        unsubscribe: function ($super) {
+          $super();
         },
         
         containerStack: function () {
@@ -278,6 +290,29 @@ define('map', function (require, exports) {
           }
         },
         
+        onMouseWheel: function (event) {
+          var scale = this.model.get('scale');
+          scale += (event.originalEvent.wheelDelta / 1024);
+          this.model.set('scale', scale);
+          
+          var offset = this.$el.offset();
+          var offsetTop = offset.top;
+          var offsetLeft = offset.left;
+          var width = this.$el.width();
+          var height = this.$el.height();
+          var midX = offsetLeft + (width / 2);
+          var midY = offsetTop + (height/ 2);
+          var position = this.model.get('position');
+          var deltaX = event.pageX - midX;
+          var deltaY = event.pageY - midY;
+          var newPos = {
+            x: position.x - deltaX,
+            y: position.y - deltaY
+          };
+          this.model.set('position', newPos);
+          return false;
+        },
+        
         // Map API
         /**
          * Open the next container
@@ -304,9 +339,8 @@ define('map', function (require, exports) {
       }
     });
 
-  var MapSectionModel = ES5Class
+  var MapSectionModel = core.Model
     .$define('MapSectionModel')
-    .$implement(core.Model)
     .$include(function () {
       
       return {
@@ -351,15 +385,13 @@ define('map', function (require, exports) {
       }
     });
   
-  var MapSectionView = ES5Class
+  var MapSectionView = core.View
     .$define('MapSectionView')
     .$implement(mixins.Options)
-    .$implement(core.View)
     .$implement(mixins.DefaultRender)
     .$include(function () {
       
       return {
-        construct: Backbone.View,
         className: 'map-section',
         template: template('#tmpl-_map-section'),
         initialize: function ($super, options) {
