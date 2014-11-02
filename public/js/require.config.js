@@ -9,7 +9,7 @@ require.config({
     'ES5Class': '../vendor/es5class/index',
     'better-curry': '../vendor/better-curry/index',
     'es5-shim': '../vendor/es5-shim/es5-shim',
-    'jquery.elevatezoom': '../vendor/elevatezoom/jquery.elevatezoom',
+    'jquery.dragpan': '../vendor/jquery-dragpan/src/dragpan',
     
     // Test dependencies
     'chai': '../vendor/chai/chai',
@@ -26,8 +26,8 @@ require.config({
     'jquery': {
       exports: ['jQuery', '$']
     },
-    'jquery.elevatezoom': {
-      deps: ['jquery']
+    'jquery.dragpan': {
+      deps: ['jquery', '../vendor/jquery-dragpan/libs/jquery-ui/jquery-ui', 'sinon']
     },
     'underscore': {
       exports: '_'

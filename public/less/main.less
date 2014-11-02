@@ -17,33 +17,37 @@ span.fancy {
 
 .marauder-map {
   overflow: hidden;
-  width: 1280px;
+  width: 2048px;
   height: 768px;
   display: block;
   margin: 20px auto 20px auto;
-  padding: 20px 120px 20px 120px;
+  padding: 20px;
   .multi-transition("transform 0.25s linear", "opacity 2s linear");  
 }
 
 div.map {
-  background-color: @map-color;
-  border-top-color: rgb(147, 161, 161);
-  border-top-style: solid;
-  border-top-width: 4px;
   position: relative;
   
   .name-tag {
     background-image: url('/img/nametag_1.png');
     background-size: 11em;
     background-repeat: no-repeat;
-    top: -20px;
-    left: 110px;
+    top: -5px;
+    left: 20px;
+    width: 135px;
+    height: 11em;
     .multi-transition("transform 1s linear", "opacity 2s linear");  
     position: absolute;
-    padding: 50px 130px 50px 130px;
+    padding: 5px 20px 5px 20px;
     text-align: center;
     letter-spacing: -0.02em;
     vertical-align: baseline;
+    overflow: hidden;
+    z-index: 50;
+    span {
+      width: 100px;
+      margin: 25px auto 25px auto;
+    }
   }
 }
 
@@ -53,9 +57,6 @@ div.map {
 }
 
 .map-container {
-  overflow: hidden;
-  width: 400px;
-  margin: auto;
   padding: 20px auto 20px auto;
 }
 

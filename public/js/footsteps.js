@@ -139,10 +139,8 @@ define('footsteps', function (require, exports) {
       this.model = options.model || new FootstepTrailModel({
         path: paths.improvedVertBackAndForth()
       });
-      this.nameTag = new NameTag({
-        model: new NameTagModel({
-          hidden: true
-        })
+      this.nameTag = options.nameTag || new NameTag({
+        model: options.nameTagModel || new NameTagModel()
       });
     },
     
@@ -175,6 +173,7 @@ define('footsteps', function (require, exports) {
           scale: this.model.get('scale')
         });
         var footsteps = new Footsteps({model: nextFootstepModel});
+        var scale = this.model.get('scale');
         var offset = this.model.get('offset');
         var pos = {
           x: nextFootstepPosition.x + offset.x,
@@ -208,5 +207,11 @@ define('footsteps', function (require, exports) {
   exports.Footsteps = Footsteps;
   exports.FootstepsModel = FootstepsModel;
   exports.FootstepTrail = FootstepTrail;
-  exports.FootstepTrailModel = FootstepTrailModel;  
+  exports.FootstepTrailModel = FootstepTrailModel;
+  exports.factory = function (options) {
+    return new FootstepTrail({
+      model: new FootstepTrailModel(options.footstep),
+      nameTagModel: new NameTagModel(options.tag)
+    })
+  }  
 });

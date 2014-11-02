@@ -4,13 +4,25 @@ define('map', function (require, exports) {
   var Backbone = require('backbone');
   var _ = require('underscore');
   var $ = require('jquery');
-  require('jquery.elevatezoom');
   var sprintf = require('sprintf').sprintf;
   var paths = require('paths');
   var ES5Class = require('ES5Class');
   var mixins = require('mixins');
   var core = require('core');
   var template = require('template');
+  
+  exports.Button = core.View.$define('Button')
+    .$implement(mixins.Options)
+    .$implement(mixins.DefaultRender)
+    .$include({
+      initialize: function ($super, options) {
+        options = this.options(options);
+        this.model = options.default('model');
+        this.template = options.default('template');
+        this.use(mixins.Clickable.$create(this));
+        $super();
+      }
+    });
   
   var MapContainerModel = ES5Class.$define('MapContainerModel')
     .$implement(core.Model)
@@ -149,7 +161,7 @@ define('map', function (require, exports) {
     .$include(function () {
       
       return {
-        
+        className: 'map',
         initialize: function ($super, options) {
           options = this.options(options);
           this._containerStack = [];
@@ -161,7 +173,7 @@ define('map', function (require, exports) {
         },
         
         subscribe: function ($super) {
-          this.$el.click(this.click.bind(this));
+          //this.$el.click(this.click.bind(this));
           
           $super();
         },
@@ -320,8 +332,10 @@ define('map', function (require, exports) {
         open: function () {
           console.log('-- BEGIN open');
           var topContainer = this._containerStack[this._openIndex];
-          topContainer.open();
-          this._openIndex++;
+          if (topContainer) {
+            topContainer.open();
+            this._openIndex++;
+          }
           console.log('-- END open');
           return this;
         },
@@ -331,8 +345,10 @@ define('map', function (require, exports) {
         close: function () {
           console.log('-- BEGIN close');
           var topContainer = this._containerStack[this._openIndex];
-          topContainer.close();
-          this._openIndex--;
+          if (topContainer) {
+            topContainer.close();
+            this._openIndex--;
+          }
           console.log('-- END close');
           return this;
         }
@@ -390,6 +406,7 @@ define('map', function (require, exports) {
     .$implement(mixins.Options)
     .$implement(mixins.DefaultRender)
     .$include(function () {
+      var Footsteps = require('footsteps').FootstepTrail;
       
       return {
         className: 'map-section',
@@ -397,10 +414,19 @@ define('map', function (require, exports) {
         initialize: function ($super, options) {
           options = this.options(options);
           this.model = options.default('model') || MapSectionModel.$create(),
+          
           this.use(mixins.TransformsCss.$create(this))
             .use(mixins.StaticRect.$create(this))
             .use(mixins.BackgroundImg.$create(this));
           $super();
+        },
+        render: function ($super) {
+          var view = this;
+          $super();
+          (this.model.get('footsteps') || []).forEach(function (footstep) {
+            view.$el.append(footstep.start().render().$el);
+          });
+          return this;
         }
       }
     });

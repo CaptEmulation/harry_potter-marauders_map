@@ -14,7 +14,11 @@ define(function (require, exports) {
   
   exports.DefaultRender = ES5Class.$define('DefaultRender', {
     render: function () {
-      this.$el.html(this.template(this.model.toJSON()));
+      var data = this.model && this.model.toJSON() || {};
+      var template = this.template || function () {
+        return '';
+      } 
+      this.$el.html(template.call(this, data));
       return this;
     }
   });
@@ -156,6 +160,29 @@ define(function (require, exports) {
     }
   })
     .$implement(exports.SafelyCall);
+  
+  exports.Clickable = ES5Class.$define('Clickable', {
+    construct: function (view) {
+      this.view = view;
+    },
+    
+    subscribe: function ($super) {
+      var view = this.view;
+      this.view.$el.click(function (event) {
+        view.trigger('click', event);
+      });
+      $super();
+    },
+    
+    unsubscribe: function ($super) {
+      this.view.$el.off('click');
+      $super();
+    },
+    
+    reset: function ($super) {
+      $super();
+    }
+  })
   
   exports.Options = ES5Class.$define('Options', function () {
     var OptionsDsl = ES5Class.$define('OptionsDsl', function () {
