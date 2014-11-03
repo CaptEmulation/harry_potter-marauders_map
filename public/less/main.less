@@ -12,7 +12,7 @@
 
 span.fancy {
   color: black;
-  font-family: 'Allegheny';  
+  font-family: 'Allegheny';
 }
 
 .marauder-map {
@@ -20,14 +20,15 @@ span.fancy {
   width: 2048px;
   height: 768px;
   display: block;
-  margin: 20px auto 20px auto;
+  margin: 20px 20px 20px auto;
   padding: 20px;
-  //.multi-transition("transform 0.25s linear", "opacity 2s linear");  
+  //.multi-transition("transform 0.25s linear", "opacity 2s linear");
 }
 
 div.map {
   position: relative;
-  
+  margin: 10px;
+
   .name-tag {
     background-image: url('/img/nametag_1.png');
     background-size: 11em;
@@ -36,7 +37,7 @@ div.map {
     left: 20px;
     width: 135px;
     height: 11em;
-    .multi-transition("transform 0.05s linear", "opacity 2s linear");  
+    .multi-transition("transform 0.05s linear", "opacity 2s linear");
     position: absolute;
     padding: 5px 20px 5px 20px;
     text-align: center;
@@ -57,6 +58,7 @@ div.map {
 }
 
 .map-container {
+  overflow: hidden;
   padding: 20px auto 20px auto;
 }
 
@@ -93,7 +95,7 @@ div.map {
     .vertical-foot;
     float: left;
   }
-  
+
   .right {
     .right-foot-img;
     .vertical-foot;

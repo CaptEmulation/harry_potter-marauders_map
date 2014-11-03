@@ -1,5 +1,5 @@
 define(function (require, exports) {
-  
+
   exports.init = function () {
     var $ = require('jquery');
     require('jquery.dragpan');
@@ -9,7 +9,7 @@ define(function (require, exports) {
     var template = require('template');
     var footsteps = require('footsteps');
     var paths = require('paths');
-    
+
     var mapView = map.MapView.$create();
     mapView.build()
       .horizontal({
@@ -52,7 +52,7 @@ define(function (require, exports) {
           width: 535,
           height: 2048,
           footsteps: [
-            footsteps.factory({ 
+            footsteps.factory({
               footstep: {
                 scale: 0.1,
                 path: paths.walker()
@@ -62,13 +62,24 @@ define(function (require, exports) {
                   .walk(-15, -50, 6)
                   .walk(25, -15, 3)
                   .walk(-15, -50, 5)
+                  .walk(-128, -5, 12)
+                  .walk(-74, 48, 8)
+                  .walk(50, 320, 36)
+                  .walk(5, 5, 1)
+                  .walk(45, -5, 5)
+                  .walk(0, -8, 2)
+                  .walk(75, -9, 6)
+                  .walk(-43, -220, 24)
+                  .walk(-50, 10, 5)
+                  .walk(-5, -104, 10)
+                  .walk(-64, -5, 5)
                   .footsteps()
               },
               tag: {
                 name: 'Severous Snape'
               }
             }),
-            footsteps.factory({ 
+            footsteps.factory({
               footstep: {
                 scale: 0.1,
                 path: paths.walker()
@@ -86,6 +97,22 @@ define(function (require, exports) {
               tag: {
                 name: 'Peter Pettigrew'
               }
+            }),
+            footsteps.factory({
+              footstep: {
+                scale: 0.1,
+                path: paths.walker()
+                  .goTo(320,1075 ,90 )
+                  .walk(75, -45, 14)
+                  .walk(15, 0, 2)
+                  .walk(-10, 10, 2)
+                  .walk(-45, 22, 7)
+                  .walk(-55, 22, 18)
+                  .footsteps()
+              },
+              tag: {
+                name: 'Harry Potter'
+              }
             })
           ]
         },
@@ -97,15 +124,15 @@ define(function (require, exports) {
           height: 2048
         }
       });
-      
+
     var MapPage = core.View.$define('MapPage', {
       initialize: function ($super) {
         this.use(mixins.ZoomableView.$create(this, mapView));
         $super();
       },
-      
+
     });
-    
+
     var mapPage = MapPage.$create({
       el: '.marauder-map'
     });
@@ -126,11 +153,11 @@ define(function (require, exports) {
         title: 'Open'
       })
     });
-    
+
     openButton.on('click', mapView.click, mapView);
     $('.button-bar').append(openButton.render().$el);
     footsteps.speed(10);
-    
+
   }
-  
+
 });

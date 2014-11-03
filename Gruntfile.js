@@ -39,7 +39,7 @@ module.exports = function(grunt) {
           'public/**/*.js', '!public/**/*.min.js',
           'public/**/*.js', '!public/**/*.min.js'
          ],
-         tasks: ['requirejs:compile', 'newer:jshint:client']
+         tasks: ['newer:jshint:client']
       },
       serverJS: {
          files: ['private/**/*.js'],
