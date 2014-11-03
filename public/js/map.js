@@ -56,7 +56,7 @@ define('map', function (require, exports) {
         allowed.forEach(function (allowed) {
           views[allowed] = viewDataFactory(options, allowed);
         });
-        
+        this.use(mixins.StaticRect.$define(this));
         $super();
       },
       allowed: function () {
@@ -102,6 +102,26 @@ define('map', function (require, exports) {
           view.$el.append(viewDir.$el);
         });
         return this;
+      },
+      reveal: function () {
+        this.$el.removeClass('obscured');
+      },
+      obscure: function () {
+        this.$el.addClass('obscured');
+      },
+      resizeFromChildren: function () {
+        var width = this.model.get('width') || this.childrenWidth();
+        var height = this.model.get('height') || this.childrenHeight();
+        this.model.set({
+          width: width,
+          hieght: height
+        });
+      },
+      open: function () {
+        this.resizeFromChildren()
+      },
+      close: function () {
+        this.resizeFromChildren();
       }
     };
   });
@@ -114,19 +134,45 @@ define('map', function (require, exports) {
           allowed: ['left', 'right']
         }));
       },
-      open: function () {
+      open: function ($super) {
         var right = this.views['right'].pointer;
         var left = this.views['left'].pointer;
         
         right.model.open();
         left.model.open();
+        $super();
       },
-      close: function () {
+      close: function ($super) {
         var right = this.views['right'].pointer;
         var left = this.views['left'].pointer;
         
         right.model.close();
         left.model.close();
+        $super();
+      },
+      /**
+       * Return total width
+      */
+      childrenWidth: function () {
+        var views = this.views;
+        return Object.keys(this.views)
+          .map(function (dir) {
+            return views[dir].pointer.model.get('width')
+          })
+          .reduce(function (prev, cur) {
+            return cur + prev;
+          }, 0);
+      },
+      /**
+       * Return max height
+       */
+      childrenHeight: function () {
+        var views = this.views;
+        return Object.keys(this.views)
+          .map(function (dir) {
+            return views[dir].pointer.model.get('height')
+          })
+          .reduce(Math.max, 0);
       }
     };
   })
@@ -198,6 +244,11 @@ define('map', function (require, exports) {
           var container = MapView.containerForOrientation(orientation).$create({
             handler: this._build_mapSection(orientation)
           });
+          
+          // Decorate container
+          //  Obscured causes name-tag divs to dissappear
+          //  Will be removed when the map section above reveal us
+          container.$el.addClass('obscured');
           
           // Link containers
           if (this._containerStack.length) {
@@ -331,26 +382,30 @@ define('map', function (require, exports) {
          * Open the next container
          */
         open: function () {
-          console.log('-- BEGIN open');
           var topContainer = this._containerStack[this._openIndex];
           if (topContainer) {
             topContainer.open();
             this._openIndex++;
+            var nextContainer = this._containerStack[this._openIndex];
+            if (nextContainer) {
+              nextContainer.reveal();
+            }
           }
-          console.log('-- END open');
           return this;
         },
         /**
          * Close the most recently opened container
          */
         close: function () {
-          console.log('-- BEGIN close');
           var topContainer = this._containerStack[this._openIndex];
           if (topContainer) {
+            var nextContainer = this._containerStack[this._openIndex + 1];
+            if (nextContainer) {
+              nextContainer.obscure();
+            }
             topContainer.close();
             this._openIndex--;
           }
-          console.log('-- END close');
           return this;
         }
       }

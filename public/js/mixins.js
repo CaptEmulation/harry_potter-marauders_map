@@ -51,6 +51,35 @@ define(function (require, exports) {
     }
   });
 
+  exports.DynamicRect = ES5Class.$define('StaticRect', {
+    construct: function (view) {
+      this.view = view;
+    },
+    
+    subscribe: function ($super) {
+      this.view.model.on('change:width change:height', this.resize, this);
+      $super();
+    },
+    
+    unsubscribe: function ($super) {
+      this.view.model.off('change:width change:height', this.resize, this);
+      $super();
+    },
+    
+    reset: function ($super) {
+      this.resize();
+      $super();
+    },
+      
+    resize: function () {
+      var model = this.view.model;
+      this.view.$el.css(['width', 'height'].reduce(function (prev, cur) {
+        prev[cur] = model.get(cur) + 'px';
+        return prev;
+      }, {}));
+    }
+  });
+
   exports.StaticRect = ES5Class.$define('StaticRect', {
     construct: function (view) {
       this.view = view;

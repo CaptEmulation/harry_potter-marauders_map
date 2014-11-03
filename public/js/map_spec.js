@@ -238,6 +238,12 @@ define(function (require) {
               expect(stack[0].views['right'].pointer.$el.css('transform')).to.include('translate(200px, 0px)');
               expect(stack[0].views['left'].pointer.$el.css('transform')).to.include('translate(-200px, 0px)');
             });
+            
+            it.skip('changes the width', function () {
+              var width = view.model.get('width');
+              view.open();
+              expect(width).to.not.equal(width);
+            });
           });
           
           it('#render', function () {
