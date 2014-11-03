@@ -36,23 +36,36 @@ define(function (require, exports) {
       subscribe: function () {
         var view = this;
         this.mixins.forEach(function (m) {
-          m.subscribe();
+          if (typeof m.subscribe === 'function') {
+            m.subscribe();
+          }
         });
       },
       unsubscribe: function () {
         var view = this;
         this.mixins.forEach(function (m) {
-          m.unsubscribe();
+          if (typeof m.unsubscribe === 'function') {
+            m.unsubscribe();
+          }
         });
       },
       reset: function () {
         var view = this;
         this.mixins.forEach(function (m) {
-          m.reset();
+          if (typeof m.reset === 'function') {
+            m.reset();
+          }
         });
       },
       dispose: function () {
         this.unsubscribe();
       }
     });
+  
+  exports.Rect = exports.View.$define('Rect')
+    .$implement({
+      initialize: function ($super) {
+        this.use()
+      }
+    })
 });
